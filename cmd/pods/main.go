@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"mime"
 	"os"
 	"path/filepath"
@@ -22,11 +23,12 @@ const version = "v0.1.0"
 var helptext = fmt.Sprintf(`
 Pods %s
 
+  A utility for downloading podcast episodes.
+
 Usage:
   pods --url <rss-feed>
 
-  A utility for downloading podcast episodes.
-
+Description:
   By default, this utility simply lists the episodes which would be downloaded.
   Use the -d/--download flag to actually download the episodes.
 
@@ -67,6 +69,7 @@ Options:
 Flags:
   -d, --download            Download podcast episodes.
   -h, --help                Print the application's help text.
+  -q, --quiet               Quiet mode. Only reports errors.
   -v, --version             Print the application's version number.
 `, version)
 
@@ -90,6 +93,7 @@ func main() {
 	argparser.NewIntOption("episode e", 0)
 	argparser.NewStringOption("format f", "%episode4%. %title%%ext%")
 	argparser.NewFlag("download d")
+	argparser.NewFlag("quiet q")
 
 	if err := argparser.ParseOsArgs(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
@@ -112,7 +116,7 @@ func runMain(args *argo.ArgParser) int {
 	after := time.Time{}
 
 	if args.Found("before") {
-		before, err = parseInputTime(args.StringValue("before"))
+		before, err = parseInputTimestamp(args.StringValue("before"))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to parse 'before' date: '%s'\n", args.StringValue("before"))
 			return 1
@@ -120,7 +124,7 @@ func runMain(args *argo.ArgParser) int {
 	}
 
 	if args.Found("after") {
-		after, err = parseInputTime(args.StringValue("after"))
+		after, err = parseInputTimestamp(args.StringValue("after"))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to parse 'after' date: '%s\n", args.StringValue("after"))
 			return 1
@@ -204,9 +208,16 @@ func runMain(args *argo.ArgParser) int {
 			return 1
 		}
 
-		numErrors := downloadEpisodes(ctx, dstDirectory, args.StringValue("format"), episodes)
-		if numErrors > 0 {
-			return 1
+		if args.Found("quiet") {
+			numErrors := downloadEpisodesQuietly(ctx, dstDirectory, args.StringValue("format"), episodes)
+			if numErrors > 0 {
+				return 1
+			}
+		} else {
+			numErrors := downloadEpisodes(ctx, dstDirectory, args.StringValue("format"), episodes)
+			if numErrors > 0 {
+				return 1
+			}
 		}
 	}
 
@@ -271,6 +282,43 @@ func downloadEpisode(ctx context.Context, client *http.Client, filepath string, 
 	}
 
 	return byteCounter.TotalBytes, file.Close()
+}
+
+func downloadEpisodesQuietly(ctx context.Context, dstDirectory string, filenameFormat string, episodes []rss.Item) int {
+	client := http.NewClient(5 * time.Minute)
+
+	for _, episode := range episodes {
+		filename, err := formatFilename(filenameFormat, episode)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: failed to format filename: %s\n", err)
+			return 1
+		}
+
+		filepath := filepath.Join(dstDirectory, filename)
+
+		err = downloadEpisodeQuietly(ctx, client, filepath, episode.Enclosure.URL)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			return 1
+		}
+	}
+
+	return 0
+}
+
+func downloadEpisodeQuietly(ctx context.Context, client *http.Client, filepath string, url string) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return fmt.Errorf("failed to open file for output: %w", err)
+	}
+
+	err = client.Download(ctx, url, file, io.Discard)
+	if err != nil {
+		file.Close()
+		return fmt.Errorf("failed to download episode: %w", err)
+	}
+
+	return file.Close()
 }
 
 func formatFilename(format string, episode rss.Item) (string, error) {
@@ -340,7 +388,7 @@ func parseRssPubDate(input string) (time.Time, error) {
 // Parses a timestamp in RFC 3339 format.
 //   - Supports shorter formats for convenience.
 //   - If no timezone is specified, it's assumed to be UTC.
-func parseInputTime(input string) (time.Time, error) {
+func parseInputTimestamp(input string) (time.Time, error) {
 	dt, err := time.Parse("2006-01-02T15:04:05Z07:00", input) // RFC 3339
 	if err != nil {
 		dt, err = time.Parse("2006-01-02 15:04:05Z07:00", input) // RFC 3339
