@@ -65,7 +65,7 @@ Options:
   -u, --url <url>           Specifies a source URL for the RSS feed.
 
 Flags:
-  -d, --download            Download podcast episodes instead of listing.
+  -d, --download            Download podcast episodes.
   -h, --help                Print the application's help text.
   -v, --version             Print the application's version number.
 `, version)
