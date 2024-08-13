@@ -41,7 +41,7 @@ func (c *Client) Get(ctx context.Context, url string) ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) Download(ctx context.Context, url string, dst io.Writer) error {
+func (c *Client) Download(ctx context.Context, url string, dst io.Writer, counter io.Writer) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return fmt.Errorf("failed to initialize request: %w", err)
@@ -54,7 +54,7 @@ func (c *Client) Download(ctx context.Context, url string, dst io.Writer) error 
 
 	defer res.Body.Close()
 
-	_, err = io.Copy(dst, res.Body)
+	_, err = io.Copy(dst, io.TeeReader(res.Body, counter))
 	if err != nil {
 		return fmt.Errorf("failed to read response: %w", err)
 	}

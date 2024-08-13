@@ -237,31 +237,40 @@ func downloadEpisodes(ctx context.Context, dstDirectory string, filenameFormat s
 
 		filepath := filepath.Join(dstDirectory, filename)
 
-		err = downloadEpisode(ctx, client, filepath, episode.Enclosure.URL)
+		bytesDownloaded, err := downloadEpisode(ctx, client, filepath, episode.Enclosure.URL)
 		if err != nil {
+			if bytesDownloaded > 0 {
+				fmt.Println()
+			}
+
 			term.PrintRed("      Error")
 			fmt.Printf(" %s\n", err)
+
 			numErrors += 1
 			continue
 		}
+
+		fmt.Println(" [complete]")
 	}
 
 	return numErrors
 }
 
-func downloadEpisode(ctx context.Context, client *http.Client, filepath string, url string) error {
+func downloadEpisode(ctx context.Context, client *http.Client, filepath string, url string) (uint64, error) {
 	file, err := os.Create(filepath)
 	if err != nil {
-		return fmt.Errorf("failed to open file for output: %w", err)
+		return 0, fmt.Errorf("failed to open file for output: %w", err)
 	}
 
-	err = client.Download(ctx, url, file)
+	byteCounter := &ByteCounter{}
+
+	err = client.Download(ctx, url, file, byteCounter)
 	if err != nil {
 		file.Close()
-		return fmt.Errorf("failed to download episode: %w", err)
+		return byteCounter.TotalBytes, fmt.Errorf("failed to download episode: %w", err)
 	}
 
-	return file.Close()
+	return byteCounter.TotalBytes, file.Close()
 }
 
 func formatFilename(format string, episode rss.Item) (string, error) {
