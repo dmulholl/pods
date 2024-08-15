@@ -83,7 +83,7 @@ Flags:
   -d, --download            Download podcast episodes.
   -h, --help                Print the application's help text.
   -q, --quiet               Quiet mode. Only reports errors.
-  -v, --version             Prin
+  -v, --version             Print the application's version number.
 ```
 
 ## License
