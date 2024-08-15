@@ -8,7 +8,7 @@ A simple command-line utility for downloading podcast episodes.
 Pods is written in Go. If you have a Go compiler installed, you can install Pods by running:
 
 ```
-go install github.com/dmulholl/pods@latest
+go install github.com/dmulholl/pods/cmd/pods@latest
 ```
 
 This will download, compile, and install the latest version of the application to your `$GOPATH/bin` directory.
