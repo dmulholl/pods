@@ -1,15 +1,21 @@
 # Pods
 
+[1]: https://castos.com/tools/find-podcast-rss-feed/
+
+
 A simple command-line utility for downloading podcast episodes.
 
 
 ## Example
 
-Download all episodes of the specified podcast for the month of July 2024:
+Download all episodes of a podcast for the month of July 2024:
 
 ```
-pods --download --url https://feeds.megaphone.fm/GLT4787413333 --after "2024-07-01" --before "2024-08-01"
+pods --download --url <podcast-url> --after "2024-07-01" --before "2024-08-01"
 ```
+
+You should insert the URL for the podcast's RSS feed.
+You can use an online service like [castos][1] to find the appropriate URL.
 
 
 ## Install
