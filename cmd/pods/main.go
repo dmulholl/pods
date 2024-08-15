@@ -236,7 +236,7 @@ func downloadEpisodes(ctx context.Context, dstDirectory string, filenameFormat s
 		}
 
 		term.PrintGreen("Downloading")
-		fmt.Printf(" %s\n", episode.Title)
+		fmt.Printf(" [%d] %s\n", episode.Episode, episode.Title)
 
 		filename, err := formatFilename(filenameFormat, episode)
 		if err != nil {
