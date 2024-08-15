@@ -15,7 +15,7 @@ pods --download --url <podcast-url> --after "2024-07-01" --before "2024-08-01"
 ```
 
 You should insert the URL for the podcast's RSS feed.
-You can use an online service like [castos][1] to find the appropriate URL.
+You can use a service like [castos][1] to find the appropriate URL.
 
 
 ## Install
