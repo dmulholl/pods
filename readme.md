@@ -3,6 +3,15 @@
 A simple command-line utility for downloading podcast episodes.
 
 
+## Example
+
+Download all episodes of the specified podcast for the month of July 2024:
+
+```
+pods --download --url https://feeds.megaphone.fm/GLT4787413333 --after "2024-07-01" --before "2024-08-01"
+```
+
+
 ## Install
 
 Pods is written in Go. If you have a Go compiler installed, you can install Pods by running:
