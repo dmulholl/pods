@@ -34,7 +34,8 @@ Description:
     --after "2024-07-31"
     --after "2024-07-31T13:59:00+02:00"
 
-  If no timezone offset is specified, the timestamp is assumed to be UTC.
+  If no timezone offset is specified, the timestamp is assumed to be UTC. If no
+  time is specified, it defaults to 00:00:00.
 
   The output filename can be customized using the -f/--format option. The
   following format specifiers are supported:
