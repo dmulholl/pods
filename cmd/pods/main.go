@@ -4,12 +4,8 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"io"
-	"mime"
 	"os"
-	"path/filepath"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/dmulholl/argo/v4"
@@ -18,7 +14,7 @@ import (
 	"github.com/dmulholl/pods/internal/term"
 )
 
-const version = "v0.2.0"
+const version = "v0.2.1"
 
 var helptext = fmt.Sprintf(`
 Pods %s
@@ -70,13 +66,6 @@ Flags:
   -q, --quiet               Quiet mode. Only reports errors.
   -v, --version             Print the application's version number.
 `, version)
-
-var extensions = map[string]string{
-	"audio/mpeg": ".mp3",
-	"audio/m4a":  ".m4a",
-	"video/m4v":  ".m4v",
-	"video/mp4":  ".mp4",
-}
 
 func main() {
 	argparser := argo.NewParser()
@@ -222,140 +211,6 @@ func runMain(args *argo.ArgParser) int {
 	return 0
 }
 
-func downloadEpisodes(ctx context.Context, dstDirectory string, filenameFormat string, episodes []rss.Item) int {
-	client := http.NewClient(5 * time.Minute)
-	numErrors := 0
-
-	for _, episode := range episodes {
-		if numErrors > 5 {
-			term.PrintRed("   Aborting")
-			fmt.Printf(" too many errors\n")
-			break
-		}
-
-		term.PrintGreen("Downloading")
-		fmt.Printf(" [%d] %s\n", episode.Episode, episode.Title)
-
-		filename, err := formatFilename(filenameFormat, episode)
-		if err != nil {
-			term.PrintRed("      Error")
-			fmt.Printf(" failed to format filename: %s\n", err)
-			numErrors += 1
-			continue
-		}
-
-		filepath := filepath.Join(dstDirectory, filename)
-
-		bytesDownloaded, err := downloadEpisode(ctx, client, filepath, episode.Enclosure.URL)
-		if err != nil {
-			if bytesDownloaded > 0 {
-				fmt.Println()
-			}
-
-			term.PrintRed("      Error")
-			fmt.Printf(" %s\n", err)
-
-			numErrors += 1
-			continue
-		}
-
-		fmt.Println(" [complete]")
-	}
-
-	return numErrors
-}
-
-func downloadEpisode(ctx context.Context, client *http.Client, filepath string, url string) (uint64, error) {
-	file, err := os.Create(filepath)
-	if err != nil {
-		return 0, fmt.Errorf("failed to open file for output: %w", err)
-	}
-
-	byteCounter := &ByteCounter{}
-
-	err = client.Download(ctx, url, file, byteCounter)
-	if err != nil {
-		file.Close()
-		return byteCounter.TotalBytes, fmt.Errorf("failed to download episode: %w", err)
-	}
-
-	return byteCounter.TotalBytes, file.Close()
-}
-
-func downloadEpisodesQuietly(ctx context.Context, dstDirectory string, filenameFormat string, episodes []rss.Item) int {
-	client := http.NewClient(5 * time.Minute)
-
-	for _, episode := range episodes {
-		filename, err := formatFilename(filenameFormat, episode)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: failed to format filename: %s\n", err)
-			return 1
-		}
-
-		filepath := filepath.Join(dstDirectory, filename)
-
-		err = downloadEpisodeQuietly(ctx, client, filepath, episode.Enclosure.URL)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %s\n", err)
-			return 1
-		}
-	}
-
-	return 0
-}
-
-func downloadEpisodeQuietly(ctx context.Context, client *http.Client, filepath string, url string) error {
-	file, err := os.Create(filepath)
-	if err != nil {
-		return fmt.Errorf("failed to open file for output: %w", err)
-	}
-
-	err = client.Download(ctx, url, file, io.Discard)
-	if err != nil {
-		file.Close()
-		return fmt.Errorf("failed to download episode: %w", err)
-	}
-
-	return file.Close()
-}
-
-func formatFilename(format string, episode rss.Item) (string, error) {
-	filename := strings.Replace(format, "{{title}}", strings.TrimSpace(episode.Title), -1)
-
-	if strings.Contains(filename, "{{ext}}") {
-		ext, err := extensionForType(episode.Enclosure.Type)
-		if err != nil {
-			return "", fmt.Errorf("failed to determine the default file extension: %w", err)
-		}
-
-		filename = strings.Replace(filename, "{{ext}}", ext, -1)
-	}
-
-	filename = strings.Replace(filename, "{{episode}}", fmt.Sprintf("%d", episode.Episode), -1)
-	filename = strings.Replace(filename, "{{episode2}}", fmt.Sprintf("%02d", episode.Episode), -1)
-	filename = strings.Replace(filename, "{{episode3}}", fmt.Sprintf("%03d", episode.Episode), -1)
-	filename = strings.Replace(filename, "{{episode4}}", fmt.Sprintf("%04d", episode.Episode), -1)
-
-	return filename, nil
-}
-
-func extensionForType(mimetype string) (string, error) {
-	if ext, ok := extensions[mimetype]; ok {
-		return ext, nil
-	}
-
-	extensions, err := mime.ExtensionsByType(mimetype)
-	if err != nil {
-		return "", fmt.Errorf("invalid MIME type '%s': %w", mimetype, err)
-	}
-
-	if len(extensions) == 0 {
-		return "", fmt.Errorf("unknown MIME type: %s", mimetype)
-	}
-
-	return extensions[0], nil
-}
-
 func listEpisodes(podcastTitle string, episodes []rss.Item) {
 	term.PrintLine()
 	fmt.Printf("  %s\n", podcastTitle)
@@ -368,41 +223,4 @@ func listEpisodes(podcastTitle string, episodes []rss.Item) {
 		fmt.Printf("  Type:    %s\n", episode.Enclosure.Type)
 		term.PrintLine()
 	}
-}
-
-// Parses an RSS publication date.
-func parseRssPubDate(input string) (time.Time, error) {
-	pubdate, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", input)
-	if err != nil {
-		pubdate, err = time.Parse("Mon, 02 Jan 2006 15:04:05 MST", input)
-		if err != nil {
-			return time.Time{}, err
-		}
-	}
-
-	return pubdate, nil
-}
-
-// Parses a timestamp in RFC 3339 format.
-//   - Supports shorter formats for convenience.
-//   - If no timezone is specified, it's assumed to be UTC.
-func parseInputTimestamp(input string) (time.Time, error) {
-	dt, err := time.Parse("2006-01-02T15:04:05Z07:00", input) // RFC 3339
-	if err != nil {
-		dt, err = time.Parse("2006-01-02 15:04:05Z07:00", input) // RFC 3339
-		if err != nil {
-			dt, err = time.Parse("2006-01-02T15:04:05", input)
-			if err != nil {
-				dt, err = time.Parse("2006-01-02 15:04:05", input)
-				if err != nil {
-					dt, err = time.Parse("2006-01-02", input)
-					if err != nil {
-						return time.Time{}, err
-					}
-				}
-			}
-		}
-	}
-
-	return dt, nil
 }
