@@ -32,9 +32,11 @@ release: ## Builds a set of release binaries.
 release: clean
 	@termline grey
 	GOOS=linux GOARCH=amd64 go build -o build/release/pods-linux-amd64/pods ./cmd/pods
+	GOOS=linux GOARCH=arm64 go build -o build/release/pods-linux-arm64/pods ./cmd/pods
 	GOOS=darwin GOARCH=amd64 go build -o build/release/pods-mac-amd64/pods ./cmd/pods
 	GOOS=darwin GOARCH=arm64 go build -o build/release/pods-mac-arm64/pods ./cmd/pods
 	GOOS=windows GOARCH=amd64 go build -o build/release/pods-windows-amd64/pods.exe ./cmd/pods
+	GOOS=windows GOARCH=arm64 go build -o build/release/pods-windows-arm64/pods.exe ./cmd/pods
 	@termline grey
 	@tree build
 	@termline grey
@@ -42,8 +44,10 @@ release: clean
 	@termline grey
 	@mkdir -p build/zipped
 	@cd build/release && zip -r ../zipped/pods-linux-amd64.zip pods-linux-amd64 > /dev/null
+	@cd build/release && zip -r ../zipped/pods-linux-arm64.zip pods-linux-arm64 > /dev/null
 	@cd build/release && zip -r ../zipped/pods-mac-amd64.zip pods-mac-amd64 > /dev/null
 	@cd build/release && zip -r ../zipped/pods-mac-arm64.zip pods-mac-arm64 > /dev/null
 	@cd build/release && zip -r ../zipped/pods-windows-amd64.zip pods-windows-amd64 > /dev/null
+	@cd build/release && zip -r ../zipped/pods-windows-arm64.zip pods-windows-arm64 > /dev/null
 	@tree build/zipped
 	@termline grey
