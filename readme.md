@@ -1,6 +1,7 @@
 # Pods
 
 [1]: https://castos.com/tools/find-podcast-rss-feed/
+[2]: https://github.com/dmulholl/pods/releases
 
 
 A simple command-line utility for downloading podcast episodes.
@@ -18,9 +19,14 @@ You should insert the URL for the podcast's RSS feed.
 You can use a service like [castos][1] to find the appropriate URL.
 
 
-## Install
+## Download
 
-Pods is written in Go. If you have a Go compiler installed, you can install Pods by running:
+You can download a pre-compiled binary from the [releases][2] page.
+
+
+## Build
+
+Pods is written in Go. If you have a Go compiler installed, you can build and install Pods by running:
 
 ```
 go install github.com/dmulholl/pods/cmd/pods@latest
@@ -51,7 +57,8 @@ Description:
     --after "2024-07-31"
     --after "2024-07-31T13:59:00+02:00"
 
-  If no timezone offset is specified, the timestamp is assumed to be UTC.
+  If no timezone offset is specified, the timestamp is assumed to be UTC. If no
+  time is specified, it defaults to 00:00:00.
 
   The output filename can be customized using the -f/--format option. The
   following format specifiers are supported:
