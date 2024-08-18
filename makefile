@@ -31,6 +31,8 @@ clean: ## Deletes all build artifacts.
 release: ## Builds a set of release binaries.
 release: clean
 	@termline grey
+	GOOS=freebsd GOARCH=amd64 go build -o build/release/pods-freebsd-amd64/pods ./cmd/pods
+	GOOS=freebsd GOARCH=arm64 go build -o build/release/pods-freebsd-arm64/pods ./cmd/pods
 	GOOS=linux GOARCH=amd64 go build -o build/release/pods-linux-amd64/pods ./cmd/pods
 	GOOS=linux GOARCH=arm64 go build -o build/release/pods-linux-arm64/pods ./cmd/pods
 	GOOS=darwin GOARCH=amd64 go build -o build/release/pods-mac-amd64/pods ./cmd/pods
@@ -43,6 +45,8 @@ release: clean
 	@shasum -a 256 build/release/*/*
 	@termline grey
 	@mkdir -p build/zipped
+	@cd build/release && zip -r ../zipped/pods-freebsd-amd64.zip pods-freebsd-amd64 > /dev/null
+	@cd build/release && zip -r ../zipped/pods-freebsd-arm64.zip pods-freebsd-arm64 > /dev/null
 	@cd build/release && zip -r ../zipped/pods-linux-amd64.zip pods-linux-amd64 > /dev/null
 	@cd build/release && zip -r ../zipped/pods-linux-arm64.zip pods-linux-arm64 > /dev/null
 	@cd build/release && zip -r ../zipped/pods-mac-amd64.zip pods-mac-amd64 > /dev/null
