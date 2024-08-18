@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/dmulholl/pods/internal/counter"
 	"github.com/dmulholl/pods/internal/http"
 	"github.com/dmulholl/pods/internal/rss"
 	"github.com/dmulholl/pods/internal/term"
@@ -36,10 +36,11 @@ func downloadEpisodes(ctx context.Context, dstDirectory string, filenameFormat s
 		}
 
 		filepath := filepath.Join(dstDirectory, filename)
+		counter := counter.New(true)
 
-		bytesDownloaded, err := downloadEpisode(ctx, client, filepath, episode.Enclosure.URL)
+		err = downloadEpisode(ctx, client, filepath, episode.Enclosure.URL, counter)
 		if err != nil {
-			if bytesDownloaded > 0 {
+			if counter.TotalBytes() > 0 {
 				fmt.Println()
 			}
 
@@ -56,29 +57,6 @@ func downloadEpisodes(ctx context.Context, dstDirectory string, filenameFormat s
 	return numErrors
 }
 
-func downloadEpisode(ctx context.Context, client *http.Client, filepath string, url string) (uint64, error) {
-	file, err := os.Create(filepath)
-	if err != nil {
-		return 0, fmt.Errorf("failed to open file for output: %w", err)
-	}
-
-	byteCounter := &ByteCounter{}
-
-	err = client.Download(ctx, url, file, byteCounter)
-	if err != nil {
-		file.Close()
-
-		rmErr := os.Remove(filepath)
-		if rmErr != nil {
-			return byteCounter.TotalBytes, fmt.Errorf("failed to delete file: %w, failed to download episode: %w", rmErr, err)
-		}
-
-		return byteCounter.TotalBytes, fmt.Errorf("failed to download episode: %w", err)
-	}
-
-	return byteCounter.TotalBytes, file.Close()
-}
-
 func downloadEpisodesQuietly(ctx context.Context, dstDirectory string, filenameFormat string, episodes []rss.Item) int {
 	client := http.NewClient(5 * time.Minute)
 
@@ -90,8 +68,9 @@ func downloadEpisodesQuietly(ctx context.Context, dstDirectory string, filenameF
 		}
 
 		filepath := filepath.Join(dstDirectory, filename)
+		counter := counter.New(false)
 
-		err = downloadEpisodeQuietly(ctx, client, filepath, episode.Enclosure.URL)
+		err = downloadEpisode(ctx, client, filepath, episode.Enclosure.URL, counter)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %s\n", err)
 			return 1
@@ -101,23 +80,31 @@ func downloadEpisodesQuietly(ctx context.Context, dstDirectory string, filenameF
 	return 0
 }
 
-func downloadEpisodeQuietly(ctx context.Context, client *http.Client, filepath string, url string) error {
-	file, err := os.Create(filepath)
+func downloadEpisode(ctx context.Context, client *http.Client, filepath string, url string, counter *counter.ByteCounter) error {
+	tempFilepath := filepath + ".temp"
+
+	file, err := os.Create(tempFilepath)
 	if err != nil {
 		return fmt.Errorf("failed to open file for output: %w", err)
 	}
 
-	err = client.Download(ctx, url, file, io.Discard)
+	err = client.Download(ctx, url, file, counter)
 	if err != nil {
 		file.Close()
-
-		rmErr := os.Remove(filepath)
-		if rmErr != nil {
-			return fmt.Errorf("failed to delete file: %w, failed to download episode: %w", rmErr, err)
-		}
-
+		os.Remove(tempFilepath)
 		return fmt.Errorf("failed to download episode: %w", err)
 	}
 
-	return file.Close()
+	err = file.Close()
+	if err != nil {
+		os.Remove(tempFilepath)
+		return fmt.Errorf("failed to close file: %w", err)
+	}
+
+	err = os.Rename(tempFilepath, filepath)
+	if err != nil {
+		return fmt.Errorf("failed to rename downloaded file to remove '.temp' suffix: %w", err)
+	}
+
+	return nil
 }

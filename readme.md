@@ -40,7 +40,7 @@ This will download, compile, and install the latest version of the application t
 Run `pods --help` to view the command line help:
 
 ```
-Pods v0.2.0
+Pods v0.3.0
 
   A utility for downloading podcast episodes.
 

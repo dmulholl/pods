@@ -14,7 +14,7 @@ import (
 	"github.com/dmulholl/pods/internal/term"
 )
 
-const version = "v0.2.1"
+const version = "v0.3.0"
 
 var helptext = fmt.Sprintf(`
 Pods %s
