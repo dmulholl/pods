@@ -40,7 +40,7 @@ This will download, compile, and install the latest version of the application t
 Run `pods --help` to view the command line help:
 
 ```
-Pods v0.4.0
+Pods v0.5.0
 
   A utility for downloading podcast episodes.
 
@@ -57,8 +57,8 @@ Description:
     --after "2024-07-31"
     --after "2024-07-31T13:59:00+02:00"
 
-  If no timezone offset is specified, the timestamp is assumed to be UTC. If no
-  time is specified, the time defaults to 00:00:00.
+  If no time is specified, the time defaults to 00:00:00. If no timezone offset
+  is specified, the timestamp is assumed to be UTC.
 
   The output filename can be customized using the -f/--format option. The
   following format specifiers are supported:
@@ -76,6 +76,10 @@ Description:
 
   The default filename format is '{{episode4}}. {{title}}{{ext}}'.
 
+  Use the --debug flag to investigate problem downloads. In debug mode, the
+  application won't download any episodes. Instead it will simply list all
+  available metadata for the episodes which would be downloaded.
+
 Options:
   -a, --after <timestamp>   Download episodes published after this timestamp.
   -b, --before <timestamp>  Download episodes published before this timestamp.
@@ -91,6 +95,7 @@ Options:
   -u, --url <url>           Specifies a source URL for the RSS feed.
 
 Flags:
+      --debug               Print all metadata for episodes.
   -d, --download            Download podcast episodes.
   -h, --help                Print the application's help text.
   -q, --quiet               Quiet mode. Only reports errors.
