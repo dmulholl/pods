@@ -20,6 +20,7 @@ type Item struct {
 	GUID      string    `xml:"guid"`
 	Enclosure Enclosure `xml:"enclosure"`
 	Episode   int       `xml:"episode"`
+	Season    int       `xml:"season"`
 }
 
 type Enclosure struct {

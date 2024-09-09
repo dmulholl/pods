@@ -14,7 +14,7 @@ import (
 	"github.com/dmulholl/pods/internal/term"
 )
 
-const version = "v0.3.0"
+const version = "v0.4.0"
 
 var helptext = fmt.Sprintf(`
 Pods %s
@@ -45,6 +45,10 @@ Description:
   - {{episode3}}: Episode number with zero-padding, min-width: 3 digits.
   - {{episode4}}: Episode number with zero-padding, min-width: 4 digits.
   - {{ext}}:      The default file extension for the file type, e.g. '.mp3'.
+  - {{season}}:   Season number.
+  - {{season2}}:  Season number with zero-padding, min-width: 2 digits.
+  - {{season3}}:  Season number with zero-padding, min-width: 3 digits.
+  - {{season4}}:  Season number with zero-padding, min-width: 4 digits.
   - {{title}}:    The episode title.
 
   The default filename format is '{{episode4}}. {{title}}{{ext}}'.
@@ -59,6 +63,8 @@ Options:
                             Default: '{{episode4}}. {{title}}{{ext}}'.
   -o, --outdir <path>       Output directory for downloaded files.
                             Default: './<podcast-title>'.
+  -s, --season <number>     Download episodes from the specified season.
+                            This option can be specified multiple times.
   -u, --url <url>           Specifies a source URL for the RSS feed.
 
 Flags:
@@ -79,6 +85,7 @@ func main() {
 	argparser.NewStringOption("after a", "")
 	argparser.NewStringOption("outdir o", "")
 	argparser.NewIntOption("episode e", 0)
+	argparser.NewIntOption("season s", 0)
 	argparser.NewStringOption("format f", "{{episode4}}. {{title}}{{ext}}")
 	argparser.NewFlag("download d")
 	argparser.NewFlag("quiet q")
@@ -177,6 +184,12 @@ func runMain(args *argo.ArgParser) int {
 				}
 			}
 
+			if args.Found("season") {
+				if !slices.Contains(args.IntValues("season"), item.Season) {
+					continue
+				}
+			}
+
 			episodes = append(episodes, item)
 		}
 
@@ -221,6 +234,7 @@ func listEpisodes(podcastTitle string, episodes []rss.Item) {
 		fmt.Printf("  Title:   %s\n", episode.Title)
 		fmt.Printf("  Date:    %s\n", episode.PubDate)
 		fmt.Printf("  Episode: %d\n", episode.Episode)
+		fmt.Printf("  Season:  %d\n", episode.Season)
 		fmt.Printf("  Type:    %s\n", episode.Enclosure.Type)
 		term.PrintLine()
 	}

@@ -34,6 +34,11 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 	filename = strings.Replace(filename, "{{episode3}}", fmt.Sprintf("%03d", episode.Episode), -1)
 	filename = strings.Replace(filename, "{{episode4}}", fmt.Sprintf("%04d", episode.Episode), -1)
 
+	filename = strings.Replace(filename, "{{season}}", fmt.Sprintf("%d", episode.Season), -1)
+	filename = strings.Replace(filename, "{{season2}}", fmt.Sprintf("%02d", episode.Season), -1)
+	filename = strings.Replace(filename, "{{season3}}", fmt.Sprintf("%03d", episode.Season), -1)
+	filename = strings.Replace(filename, "{{season4}}", fmt.Sprintf("%04d", episode.Season), -1)
+
 	return filename, nil
 }
 
