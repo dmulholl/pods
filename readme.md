@@ -40,7 +40,7 @@ This will download, compile, and install the latest version of the application t
 Run `pods --help` to view the command line help:
 
 ```
-Pods v0.3.0
+Pods v0.4.0
 
   A utility for downloading podcast episodes.
 
@@ -68,6 +68,10 @@ Description:
   - {{episode3}}: Episode number with zero-padding, min-width: 3 digits.
   - {{episode4}}: Episode number with zero-padding, min-width: 4 digits.
   - {{ext}}:      The default file extension for the file type, e.g. '.mp3'.
+  - {{season}}:   Season number.
+  - {{season2}}:  Season number with zero-padding, min-width: 2 digits.
+  - {{season3}}:  Season number with zero-padding, min-width: 3 digits.
+  - {{season4}}:  Season number with zero-padding, min-width: 4 digits.
   - {{title}}:    The episode title.
 
   The default filename format is '{{episode4}}. {{title}}{{ext}}'.
@@ -82,6 +86,8 @@ Options:
                             Default: '{{episode4}}. {{title}}{{ext}}'.
   -o, --outdir <path>       Output directory for downloaded files.
                             Default: './<podcast-title>'.
+  -s, --season <number>     Download episodes from the specified season.
+                            This option can be specified multiple times.
   -u, --url <url>           Specifies a source URL for the RSS feed.
 
 Flags:
