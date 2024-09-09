@@ -18,9 +18,9 @@ type Item struct {
 	Title     string    `xml:"title"`
 	PubDate   string    `xml:"pubDate"`
 	GUID      string    `xml:"guid"`
-	Enclosure Enclosure `xml:"enclosure"`
-	Episode   int       `xml:"episode"`
 	Season    int       `xml:"season"`
+	Episode   int       `xml:"episode"`
+	Enclosure Enclosure `xml:"enclosure"`
 }
 
 type Enclosure struct {

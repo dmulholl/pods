@@ -14,7 +14,7 @@ import (
 	"github.com/dmulholl/pods/internal/term"
 )
 
-const version = "v0.4.0"
+const version = "v0.5.0"
 
 var helptext = fmt.Sprintf(`
 Pods %s
@@ -34,8 +34,8 @@ Description:
     --after "2024-07-31"
     --after "2024-07-31T13:59:00+02:00"
 
-  If no timezone offset is specified, the timestamp is assumed to be UTC. If no
-  time is specified, the time defaults to 00:00:00.
+  If no time is specified, the time defaults to 00:00:00. If no timezone offset
+  is specified, the timestamp is assumed to be UTC.
 
   The output filename can be customized using the -f/--format option. The
   following format specifiers are supported:
@@ -53,6 +53,10 @@ Description:
 
   The default filename format is '{{episode4}}. {{title}}{{ext}}'.
 
+  Use the --debug flag to investigate problem downloads. In debug mode, the
+  application won't download any episodes. Instead it will simply list all
+  available metadata for the episodes which would be downloaded.
+
 Options:
   -a, --after <timestamp>   Download episodes published after this timestamp.
   -b, --before <timestamp>  Download episodes published before this timestamp.
@@ -68,6 +72,7 @@ Options:
   -u, --url <url>           Specifies a source URL for the RSS feed.
 
 Flags:
+      --debug               Print all metadata for episodes.
   -d, --download            Download podcast episodes.
   -h, --help                Print the application's help text.
   -q, --quiet               Quiet mode. Only reports errors.
@@ -88,6 +93,7 @@ func main() {
 	argparser.NewIntOption("season s", 0)
 	argparser.NewStringOption("format f", "{{episode4}}. {{title}}{{ext}}")
 	argparser.NewFlag("download d")
+	argparser.NewFlag("debug")
 	argparser.NewFlag("quiet q")
 
 	if err := argparser.ParseOsArgs(); err != nil {
@@ -193,6 +199,11 @@ func runMain(args *argo.ArgParser) int {
 			episodes = append(episodes, item)
 		}
 
+		if args.Found("debug") {
+			listEpisodesVerbosely(channel.Title, episodes)
+			continue
+		}
+
 		if !args.Found("download") {
 			listEpisodes(channel.Title, episodes)
 			continue
@@ -233,9 +244,27 @@ func listEpisodes(podcastTitle string, episodes []rss.Item) {
 	for _, episode := range episodes {
 		fmt.Printf("  Title:   %s\n", episode.Title)
 		fmt.Printf("  Date:    %s\n", episode.PubDate)
-		fmt.Printf("  Episode: %d\n", episode.Episode)
 		fmt.Printf("  Season:  %d\n", episode.Season)
+		fmt.Printf("  Episode: %d\n", episode.Episode)
 		fmt.Printf("  Type:    %s\n", episode.Enclosure.Type)
+		term.PrintLine()
+	}
+}
+
+func listEpisodesVerbosely(podcastTitle string, episodes []rss.Item) {
+	term.PrintLine()
+	fmt.Printf("  %s\n", podcastTitle)
+	term.PrintLine()
+
+	for _, episode := range episodes {
+		fmt.Printf("  Title:   %s\n", episode.Title)
+		fmt.Printf("  Date:    %s\n", episode.PubDate)
+		fmt.Printf("  GUID:    %s\n", episode.GUID)
+		fmt.Printf("  Season:  %d\n", episode.Season)
+		fmt.Printf("  Episode: %d\n", episode.Episode)
+		fmt.Printf("  Type:    %s\n", episode.Enclosure.Type)
+		fmt.Printf("  Length:  %d\n", episode.Enclosure.Length)
+		fmt.Printf("  URL:     %s\n", episode.Enclosure.URL)
 		term.PrintLine()
 	}
 }

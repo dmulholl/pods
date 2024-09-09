@@ -18,14 +18,8 @@ func downloadEpisodes(ctx context.Context, dstDirectory string, filenameFormat s
 	numErrors := 0
 
 	for _, episode := range episodes {
-		if numErrors > 5 {
-			term.PrintRed("   Aborting")
-			fmt.Printf(" too many errors\n")
-			break
-		}
-
 		term.PrintGreen("Downloading")
-		fmt.Printf(" [%d] %s\n", episode.Episode, episode.Title)
+		fmt.Printf(" [S%02d E%03d] %s\n", episode.Season, episode.Episode, episode.Title)
 
 		filename, err := formatFilename(filenameFormat, episode)
 		if err != nil {

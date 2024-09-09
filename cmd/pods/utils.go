@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"mime"
 	"strings"
@@ -21,9 +22,13 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 	filename := strings.Replace(format, "{{title}}", strings.TrimSpace(episode.Title), -1)
 
 	if strings.Contains(filename, "{{ext}}") {
+		if episode.Enclosure.Type == "" {
+			return "", errors.New("unable to determine the default file extension: missing MIME type")
+		}
+
 		ext, err := extensionForType(episode.Enclosure.Type)
 		if err != nil {
-			return "", fmt.Errorf("failed to determine the default file extension: %w", err)
+			return "", fmt.Errorf("unable to determine the default file extension: %w", err)
 		}
 
 		filename = strings.Replace(filename, "{{ext}}", ext, -1)
