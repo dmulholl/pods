@@ -33,6 +33,10 @@ func (c *Client) Get(ctx context.Context, url string) ([]byte, error) {
 
 	defer res.Body.Close()
 
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("server returned error: %s", res.Status)
+	}
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %w", err)
@@ -53,6 +57,10 @@ func (c *Client) Download(ctx context.Context, url string, dst io.Writer, counte
 	}
 
 	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("server returned error: %s", res.Status)
+	}
 
 	_, err = io.Copy(dst, io.TeeReader(res.Body, counter))
 	if err != nil {
