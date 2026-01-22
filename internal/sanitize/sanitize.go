@@ -9,6 +9,9 @@ var re = regexp.MustCompile(`[<>:"/\\|?*]+`)
 
 func Filename(input string) string {
 	return strings.TrimSpace(
-		re.ReplaceAllString(input, "-"),
+		strings.Trim(
+			re.ReplaceAllString(input, "-"),
+			"-",
+		),
 	)
 }

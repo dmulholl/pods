@@ -9,13 +9,28 @@ func TestFilename(t *testing.T) {
 		want  string
 	}{
 		{
-			name:  "test 1",
+			name:  "no change",
 			input: `abc`,
 			want:  `abc`,
 		},
 		{
-			name:  "test 2",
+			name:  "trim spaces",
+			input: ` abc  `,
+			want:  `abc`,
+		},
+		{
+			name:  "individual illegal characters",
+			input: `?a/b<c:`,
+			want:  `a-b-c`,
+		},
+		{
+			name:  "multiple illegal characters",
 			input: `a\\\\*b|/?/??//<<>>:"c`,
+			want:  `a-b-c`,
+		},
+		{
+			name:  "illegal characters and spaces",
+			input: ` a\\\\*b|/?/??//<<>>:"c  `,
 			want:  `a-b-c`,
 		},
 	}
