@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dmulholl/pods/internal/rss"
+	"github.com/dmulholl/pods/internal/sanitize"
 )
 
 var extensions = map[string]string{
@@ -19,7 +20,7 @@ var extensions = map[string]string{
 
 // Creates a filename from a template string containing '{{foo}}' placeholders.
 func formatFilename(format string, episode rss.Item) (string, error) {
-	filename := strings.Replace(format, "{{title}}", strings.TrimSpace(episode.Title), -1)
+	filename := strings.ReplaceAll(format, "{{title}}", sanitize.Filename(episode.Title))
 
 	if strings.Contains(filename, "{{ext}}") {
 		if episode.Enclosure.Type == "" {
@@ -34,15 +35,15 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 		filename = strings.Replace(filename, "{{ext}}", ext, -1)
 	}
 
-	filename = strings.Replace(filename, "{{episode}}", fmt.Sprintf("%d", episode.Episode), -1)
-	filename = strings.Replace(filename, "{{episode2}}", fmt.Sprintf("%02d", episode.Episode), -1)
-	filename = strings.Replace(filename, "{{episode3}}", fmt.Sprintf("%03d", episode.Episode), -1)
-	filename = strings.Replace(filename, "{{episode4}}", fmt.Sprintf("%04d", episode.Episode), -1)
+	filename = strings.ReplaceAll(filename, "{{episode}}", fmt.Sprintf("%d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{{episode2}}", fmt.Sprintf("%02d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{{episode3}}", fmt.Sprintf("%03d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{{episode4}}", fmt.Sprintf("%04d", episode.Episode))
 
-	filename = strings.Replace(filename, "{{season}}", fmt.Sprintf("%d", episode.Season), -1)
-	filename = strings.Replace(filename, "{{season2}}", fmt.Sprintf("%02d", episode.Season), -1)
-	filename = strings.Replace(filename, "{{season3}}", fmt.Sprintf("%03d", episode.Season), -1)
-	filename = strings.Replace(filename, "{{season4}}", fmt.Sprintf("%04d", episode.Season), -1)
+	filename = strings.ReplaceAll(filename, "{{season}}", fmt.Sprintf("%d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{{season2}}", fmt.Sprintf("%02d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{{season3}}", fmt.Sprintf("%03d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{{season4}}", fmt.Sprintf("%04d", episode.Season))
 
 	return filename, nil
 }
