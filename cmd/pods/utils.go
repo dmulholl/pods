@@ -21,7 +21,7 @@ var extensions = map[string]string{
 // Creates a filename from a template string containing '{{foo}}' placeholders.
 func formatFilename(format string, episode rss.Item) (string, error) {
 	filename := strings.ReplaceAll(format, "{{title}}", sanitize.Filename(episode.Title))
-	filename = strings.ReplaceAll(format, "{{slug}}", sanitize.Slug(episode.Title))
+	filename = strings.ReplaceAll(filename, "{{slug}}", sanitize.Slug(episode.Title))
 
 	if strings.Contains(filename, "{{ext}}") {
 		if episode.Enclosure.Type == "" {

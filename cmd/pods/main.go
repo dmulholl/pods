@@ -201,7 +201,7 @@ func runMain(args *argo.ArgParser) int {
 		}
 
 		if args.Found("debug") {
-			listEpisodesVerbosely(channel.Title, episodes)
+			listEpisodesVerbosely(channel.Title, episodes, args.StringValue("format"))
 			continue
 		}
 
@@ -252,20 +252,26 @@ func listEpisodes(podcastTitle string, episodes []rss.Item) {
 	}
 }
 
-func listEpisodesVerbosely(podcastTitle string, episodes []rss.Item) {
+func listEpisodesVerbosely(podcastTitle string, episodes []rss.Item, format string) {
 	term.PrintLine()
 	fmt.Printf("  %s\n", podcastTitle)
 	term.PrintLine()
 
 	for _, episode := range episodes {
-		fmt.Printf("  Title:   %s\n", episode.Title)
-		fmt.Printf("  Date:    %s\n", episode.PubDate)
-		fmt.Printf("  GUID:    %s\n", episode.GUID)
-		fmt.Printf("  Season:  %d\n", episode.Season)
-		fmt.Printf("  Episode: %d\n", episode.Episode)
-		fmt.Printf("  Type:    %s\n", episode.Enclosure.Type)
-		fmt.Printf("  Length:  %d\n", episode.Enclosure.Length)
-		fmt.Printf("  URL:     %s\n", episode.Enclosure.URL)
+		filename, err := formatFilename(format, episode)
+		if err != nil {
+			filename = err.Error()
+		}
+
+		fmt.Printf("  Title:    %s\n", episode.Title)
+		fmt.Printf("  Date:     %s\n", episode.PubDate)
+		fmt.Printf("  GUID:     %s\n", episode.GUID)
+		fmt.Printf("  Season:   %d\n", episode.Season)
+		fmt.Printf("  Episode:  %d\n", episode.Episode)
+		fmt.Printf("  Type:     %s\n", episode.Enclosure.Type)
+		fmt.Printf("  Length:   %d\n", episode.Enclosure.Length)
+		fmt.Printf("  URL:      %s\n", episode.Enclosure.URL)
+		fmt.Printf("  Filename: %s\n", filename)
 		term.PrintLine()
 	}
 }
