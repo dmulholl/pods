@@ -33,6 +33,16 @@ func TestFilename(t *testing.T) {
 			input: ` a\\\\*b|/?/??//<<>>:"c  `,
 			want:  `a-b-c`,
 		},
+		{
+			name:  "trim spaces and dashes",
+			input: ` ?a\\\\*b|/?/??//<<>>:"c*  `,
+			want:  `a-b-c`,
+		},
+		{
+			name:  "newlines and tabs",
+			input: " a\nb\tc ",
+			want:  `a-b-c`,
+		},
 	}
 
 	for _, testcase := range testcases {

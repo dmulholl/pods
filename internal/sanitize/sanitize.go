@@ -7,15 +7,12 @@ import (
 	"github.com/gosimple/slug"
 )
 
-var re = regexp.MustCompile(`[<>:"/\\|?*]+`)
+var _illegalCharacters = regexp.MustCompile(`[\n\t\\/<>:"|?*]+`)
 
 func Filename(input string) string {
-	return strings.TrimSpace(
-		strings.Trim(
-			re.ReplaceAllString(input, "-"),
-			"-",
-		),
-	)
+	output := _illegalCharacters.ReplaceAllString(input, "-")
+	output = strings.Trim(output, "- ")
+	return output
 }
 
 func Slug(input string) string {
