@@ -14,7 +14,7 @@ import (
 	"github.com/dmulholl/pods/internal/term"
 )
 
-const version = "v0.6.0"
+const version = "v0.7.0"
 
 var helptext = fmt.Sprintf(`
 Pods %s
@@ -49,7 +49,8 @@ Description:
   - {{season2}}:  Season number with zero-padding, min-width: 2 digits.
   - {{season3}}:  Season number with zero-padding, min-width: 3 digits.
   - {{season4}}:  Season number with zero-padding, min-width: 4 digits.
-  - {{title}}:    The episode title.
+  - {{slug}}:     The episode title, slugified.
+  - {{title}}:    The episode title, minimally sanitized.
 
   The default filename format is '{{episode4}}. {{title}}{{ext}}'.
 
