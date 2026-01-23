@@ -40,7 +40,7 @@ This will download, compile, and install the latest version of the application t
 Run `pods --help` to view the command line help:
 
 ```
-Pods v0.5.0
+Pods v0.7.0
 
   A utility for downloading podcast episodes.
 
@@ -72,7 +72,8 @@ Description:
   - {{season2}}:  Season number with zero-padding, min-width: 2 digits.
   - {{season3}}:  Season number with zero-padding, min-width: 3 digits.
   - {{season4}}:  Season number with zero-padding, min-width: 4 digits.
-  - {{title}}:    The episode title.
+  - {{slug}}:     The episode title, slugified.
+  - {{title}}:    The episode title, minimally sanitized.
 
   The default filename format is '{{episode4}}. {{title}}{{ext}}'.
 
