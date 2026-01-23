@@ -11,11 +11,11 @@ import (
 	"github.com/dmulholl/pods/internal/sanitize"
 )
 
-var extensions = map[string]string{
-	"audio/mpeg": ".mp3",
-	"audio/m4a":  ".m4a",
-	"video/m4v":  ".m4v",
-	"video/mp4":  ".mp4",
+var _extensions = map[string]string{
+	"audio/mpeg": "mp3",
+	"audio/m4a":  "m4a",
+	"video/m4v":  "m4v",
+	"video/mp4":  "mp4",
 }
 
 // Creates a filename from a template string containing '{{foo}}' placeholders.
@@ -25,7 +25,7 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 
 	if strings.Contains(filename, "{{ext}}") {
 		if episode.Enclosure.Type == "" {
-			return "", errors.New("unable to determine the default file extension: missing MIME type")
+			return "", errors.New("unable to determine the default file extension: episode has no MIME type")
 		}
 
 		ext, err := extensionForType(episode.Enclosure.Type)
@@ -33,7 +33,7 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 			return "", fmt.Errorf("unable to determine the default file extension: %w", err)
 		}
 
-		filename = strings.Replace(filename, "{{ext}}", ext, -1)
+		filename = strings.ReplaceAll(filename, "{{ext}}", ext)
 	}
 
 	filename = strings.ReplaceAll(filename, "{{episode}}", fmt.Sprintf("%d", episode.Episode))
@@ -49,9 +49,9 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 	return filename, nil
 }
 
-// Returns the file extension for the MIME type, e.g. '.mp3'.
+// Returns the file extension for the MIME type, e.g. 'mp3'.
 func extensionForType(mimetype string) (string, error) {
-	if ext, ok := extensions[mimetype]; ok {
+	if ext, ok := _extensions[mimetype]; ok {
 		return ext, nil
 	}
 
@@ -64,7 +64,13 @@ func extensionForType(mimetype string) (string, error) {
 		return "", fmt.Errorf("unknown MIME type: %s", mimetype)
 	}
 
-	return extensions[0], nil
+	extension := extensions[0]
+
+	if strings.HasPrefix(extension, ".") {
+		return extension[1:], nil
+	}
+
+	return extension, nil
 }
 
 // Parses an RSS publication date.
