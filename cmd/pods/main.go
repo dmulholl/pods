@@ -50,7 +50,7 @@ Description:
   - {{season3}}:  Season number with zero-padding, min-width: 3 digits.
   - {{season4}}:  Season number with zero-padding, min-width: 4 digits.
   - {{slug}}:     The episode title, slugified.
-  - {{title}}:    The episode title, minimally sanitized as a valid filename.
+  - {{title}}:    The episode title, minimally sanitized for use in a filename.
 
   The default filename format is '{{episode4}}. {{title}}.{{ext}}'.
 
