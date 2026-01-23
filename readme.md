@@ -40,7 +40,7 @@ This will download, compile, and install the latest version of the application t
 Run `pods --help` to view the command line help:
 
 ```
-Pods v0.7.0
+Pods v0.8.0
 
   A utility for downloading podcast episodes.
 
@@ -67,15 +67,15 @@ Description:
   - {{episode2}}: Episode number with zero-padding, min-width: 2 digits.
   - {{episode3}}: Episode number with zero-padding, min-width: 3 digits.
   - {{episode4}}: Episode number with zero-padding, min-width: 4 digits.
-  - {{ext}}:      The default file extension for the file type, e.g. '.mp3'.
+  - {{ext}}:      The default file extension for the file type, e.g. 'mp3'.
   - {{season}}:   Season number.
   - {{season2}}:  Season number with zero-padding, min-width: 2 digits.
   - {{season3}}:  Season number with zero-padding, min-width: 3 digits.
   - {{season4}}:  Season number with zero-padding, min-width: 4 digits.
   - {{slug}}:     The episode title, slugified.
-  - {{title}}:    The episode title, minimally sanitized.
+  - {{title}}:    The episode title, minimally sanitized for use in a filename.
 
-  The default filename format is '{{episode4}}. {{title}}{{ext}}'.
+  The default filename format is '{{episode4}}. {{title}}.{{ext}}'.
 
   Use the --debug flag to investigate problem downloads. In debug mode, the
   application won't download any episodes. Instead it will simply list all
@@ -88,7 +88,7 @@ Options:
                             This option can be specified multiple times.
       --file <filepath>     Specifies a source file for the RSS feed.
   -f, --format <format>     Overrides the default format for output filenames.
-                            Default: '{{episode4}}. {{title}}{{ext}}'.
+                            Default: '{{episode4}}. {{title}}.{{ext}}'.
   -o, --outdir <path>       Output directory for downloaded files.
                             Default: './<podcast-title>'.
   -s, --season <number>     Download episodes from the specified season.
