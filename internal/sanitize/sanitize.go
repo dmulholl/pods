@@ -7,7 +7,7 @@ import (
 	"github.com/gosimple/slug"
 )
 
-var _illegalCharacters = regexp.MustCompile(`[\n\t\\/<>:"|?*]+`)
+var _illegalCharacters = regexp.MustCompile(`[\n\r\t\\/<>:"|?*]+`)
 
 func Filename(input string) string {
 	output := _illegalCharacters.ReplaceAllString(input, "-")
