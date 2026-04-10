@@ -14,13 +14,13 @@ func PrintLine() {
 		width, _, err := term.GetSize(int(os.Stdout.Fd()))
 		if err == nil {
 			if runtime.GOOS == "windows" {
-				for i := 0; i < width; i++ {
+				for range width {
 					fmt.Print("-")
 				}
 				fmt.Println()
 			} else {
 				fmt.Print("\u001B[90m")
-				for i := 0; i < width; i++ {
+				for range width {
 					fmt.Print("─")
 				}
 				fmt.Println("\u001B[0m")
