@@ -11,6 +11,7 @@ import (
 	"github.com/dmulholl/argo/v4"
 	"github.com/dmulholl/pods/internal/http"
 	"github.com/dmulholl/pods/internal/rss"
+	"github.com/dmulholl/pods/internal/sanitize"
 	"github.com/dmulholl/pods/internal/term"
 )
 
@@ -213,12 +214,12 @@ func runMain(args *argo.ArgParser) int {
 
 		dstDirectory := args.StringValue("outdir")
 		if dstDirectory == "" {
-			dstDirectory = fmt.Sprintf("./%s", channel.Title)
+			dstDirectory = sanitize.Filename(channel.Title)
 		}
 
 		err := os.MkdirAll(dstDirectory, 0o755)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: failed to create output directory: %s\n", err)
+			fmt.Fprintf(os.Stderr, "error: failed to create output directory %q: %s\n", dstDirectory, err)
 			return 1
 		}
 
