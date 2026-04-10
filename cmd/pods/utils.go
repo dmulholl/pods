@@ -18,12 +18,12 @@ var _extensions = map[string]string{
 	"video/mp4":  "mp4",
 }
 
-// Creates a filename from a template string containing '{{foo}}' placeholders.
+// Creates a filename from a template string containing '{foo}' placeholders.
 func formatFilename(format string, episode rss.Item) (string, error) {
-	filename := strings.ReplaceAll(format, "{{title}}", sanitize.Filename(episode.Title))
-	filename = strings.ReplaceAll(filename, "{{slug}}", sanitize.Slug(episode.Title))
+	filename := strings.ReplaceAll(format, "{title}", sanitize.Filename(episode.Title))
+	filename = strings.ReplaceAll(filename, "{slug}", sanitize.Slug(episode.Title))
 
-	if strings.Contains(filename, "{{ext}}") {
+	if strings.Contains(filename, "{ext}") {
 		if episode.Enclosure.Type == "" {
 			return "", errors.New("unable to determine the default file extension: episode has no MIME type")
 		}
@@ -33,18 +33,18 @@ func formatFilename(format string, episode rss.Item) (string, error) {
 			return "", fmt.Errorf("unable to determine the default file extension: %w", err)
 		}
 
-		filename = strings.ReplaceAll(filename, "{{ext}}", ext)
+		filename = strings.ReplaceAll(filename, "{ext}", ext)
 	}
 
-	filename = strings.ReplaceAll(filename, "{{episode}}", fmt.Sprintf("%d", episode.Episode))
-	filename = strings.ReplaceAll(filename, "{{episode2}}", fmt.Sprintf("%02d", episode.Episode))
-	filename = strings.ReplaceAll(filename, "{{episode3}}", fmt.Sprintf("%03d", episode.Episode))
-	filename = strings.ReplaceAll(filename, "{{episode4}}", fmt.Sprintf("%04d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{episode}", fmt.Sprintf("%d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{episode2}", fmt.Sprintf("%02d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{episode3}", fmt.Sprintf("%03d", episode.Episode))
+	filename = strings.ReplaceAll(filename, "{episode4}", fmt.Sprintf("%04d", episode.Episode))
 
-	filename = strings.ReplaceAll(filename, "{{season}}", fmt.Sprintf("%d", episode.Season))
-	filename = strings.ReplaceAll(filename, "{{season2}}", fmt.Sprintf("%02d", episode.Season))
-	filename = strings.ReplaceAll(filename, "{{season3}}", fmt.Sprintf("%03d", episode.Season))
-	filename = strings.ReplaceAll(filename, "{{season4}}", fmt.Sprintf("%04d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{season}", fmt.Sprintf("%d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{season2}", fmt.Sprintf("%02d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{season3}", fmt.Sprintf("%03d", episode.Season))
+	filename = strings.ReplaceAll(filename, "{season4}", fmt.Sprintf("%04d", episode.Season))
 
 	return filename, nil
 }
