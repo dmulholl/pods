@@ -75,9 +75,9 @@ func extensionForType(mimetype string) (string, error) {
 
 // Parses an RSS publication date.
 func parseRssPubDate(input string) (time.Time, error) {
-	pubdate, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", input)
+	pubdate, err := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", input)
 	if err != nil {
-		pubdate, err = time.Parse("Mon, 02 Jan 2006 15:04:05 MST", input)
+		pubdate, err = time.Parse("Mon, 2 Jan 2006 15:04:05 MST", input)
 		if err != nil {
 			return time.Time{}, err
 		}
