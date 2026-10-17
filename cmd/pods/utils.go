@@ -73,7 +73,8 @@ func extensionForType(mimetype string) (string, error) {
 	return extension, nil
 }
 
-// Parses an RSS publication date.
+// Parses an RSS publication date. The date is supposed to be zero-prefixed (i.e. 02 rather than 2)
+// for single-digit days, but some feeds don't follow the spec. This function accepts both formats.
 func parseRssPubDate(input string) (time.Time, error) {
 	pubdate, err := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", input)
 	if err != nil {
